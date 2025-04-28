@@ -2,24 +2,27 @@
 
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts"
 
-// Dummy data - would be replaced with real RPC data
-const data = [
-  { name: "Epoch 365", produced: 4200, skipped: 120 },
-  { name: "Epoch 366", produced: 4150, skipped: 140 },
-  { name: "Epoch 367", produced: 4300, skipped: 90 },
-  { name: "Epoch 368", produced: 4250, skipped: 110 },
-  { name: "Epoch 369", produced: 4100, skipped: 180 },
-  { name: "Epoch 370", produced: 4350, skipped: 70 },
-  { name: "Epoch 371", produced: 4400, skipped: 60 },
-  { name: "Epoch 372", produced: 4380, skipped: 80 },
-]
+interface ValidatorPerformanceProps {
+  data: {
+    votePubkey: string,
+    commission: number,
+    produced: number,
+    skipped: number,
+  }[]
+}
 
-export default function ValidatorPerformance() {
+export default function ValidatorPerformance({ data }: ValidatorPerformanceProps) {
+  // Add a shortKey property to each data item
+  const chartData = data.map(item => ({
+    ...item,
+    shortKey: item.votePubkey.slice(0, 3) + "…" + item.votePubkey.slice(-1)
+  }));
+
   return (
     <div className="h-[300px] w-full">
       <ResponsiveContainer width="100%" height="100%">
         <LineChart
-          data={data}
+          data={chartData}
           margin={{
             top: 5,
             right: 30,
@@ -28,13 +31,39 @@ export default function ValidatorPerformance() {
           }}
         >
           <CartesianGrid strokeDasharray="3 3" stroke="#2a3a5a" />
-          <XAxis dataKey="name" stroke="#a0aec0" />
-          <YAxis stroke="#a0aec0" />
+          <XAxis
+            dataKey="shortKey"
+            stroke="#a0aec0"
+            tick={false}
+          />
+          <YAxis
+            stroke="#a0aec0"
+            label={{
+              value: "Produced / Skipped",
+              angle: -90,
+              position: "insideLeft",
+              fill: "#a0aec0",
+              style: {
+                textAnchor: "middle"
+              }
+            }}
+            tick={{ fill: "#a0aec0" }}
+            tickMargin={0}
+            width={60}
+          />
           <Tooltip
             contentStyle={{
               backgroundColor: "#131a2c",
               borderColor: "#1e2a45",
               color: "#ffffff",
+            }}
+            formatter={(value, name, props) => {
+              if (name === 'produced') {
+                return [`${value} blocks produced`, `Validator: ${props.payload.votePubkey}`];
+              } else if (name === 'skipped') {
+                return [`${value} blocks skipped`, `Validator: ${props.payload.votePubkey}`];
+              }
+              return [value, name];
             }}
           />
           <Legend />

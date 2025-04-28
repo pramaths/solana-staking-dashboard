@@ -6,7 +6,7 @@ export default function Footer() {
       <div className="flex items-center justify-center gap-1">
         <span>Built with Solana RPC</span>
         <a
-          href="https://docs.solana.com/developing/clients/jsonrpc-api"
+          href="https://www.helius.dev/blog?q=token+t#results"
           target="_blank"
           rel="noopener noreferrer"
           className="inline-flex items-center text-gray-300 hover:text-white transition-colors"

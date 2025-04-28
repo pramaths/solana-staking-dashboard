@@ -21,12 +21,13 @@ export async function GET(request: Request) {
         totalDelinquentAccounts++;
     }
     pctDelinquent = totalActiveStake > 0 ? (totalDelinquentStake / totalActiveStake) * 100 : 0;
+    const top10staked = response.current.sort((a, b) => b.activatedStake - a.activatedStake).slice(0, 10);
     const stakeAccounts = {
         totalActiveStake: totalActiveStake / 1000000000,
         totalDelinquentStake: totalDelinquentStake / 1000000000,
         totalCurrentAccounts,
         totalDelinquentAccounts,
-        response,
+        top10staked,
         supply: {
             circulating: circulating / 1000000000,
             nonCirculating: nonCirculating / 1000000000,

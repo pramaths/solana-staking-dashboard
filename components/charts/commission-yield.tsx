@@ -2,26 +2,18 @@
 
 import { ScatterChart, Scatter, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ZAxis } from "recharts"
 
-// Dummy data - would be replaced with real RPC data
-const data = [
-  { name: "Validator A", commission: 1, yield: 7.2, size: 120 },
-  { name: "Validator B", commission: 2, yield: 7.1, size: 100 },
-  { name: "Validator C", commission: 3, yield: 6.9, size: 90 },
-  { name: "Validator D", commission: 5, yield: 6.7, size: 110 },
-  { name: "Validator E", commission: 7, yield: 6.5, size: 80 },
-  { name: "Validator F", commission: 8, yield: 6.3, size: 70 },
-  { name: "Validator G", commission: 10, yield: 6.0, size: 85 },
-  { name: "Validator H", commission: 0, yield: 7.3, size: 60 },
-  { name: "Validator I", commission: 4, yield: 6.8, size: 95 },
-  { name: "Validator J", commission: 6, yield: 6.6, size: 75 },
-  { name: "Validator K", commission: 2.5, yield: 7.0, size: 105 },
-  { name: "Validator L", commission: 9, yield: 6.1, size: 65 },
-  { name: "Validator M", commission: 1.5, yield: 7.15, size: 115 },
-  { name: "Validator N", commission: 3.5, yield: 6.85, size: 85 },
-  { name: "Validator O", commission: 5.5, yield: 6.65, size: 95 },
-]
+interface CommissionYieldProps {
+  data: {
+    votePubkey: string,
+    commission: number,
+    inflationReward: number,
+    stake: number,
+    grossYield: number,
+    netYield: number
+  }[]
+}
 
-export default function CommissionYield() {
+export default function CommissionYield({ data }: CommissionYieldProps) {
   return (
     <div className="h-[300px] w-full">
       <ResponsiveContainer width="100%" height="100%">
@@ -39,31 +31,53 @@ export default function CommissionYield() {
             dataKey="commission"
             name="Commission"
             unit="%"
-            domain={[0, 10]}
+            domain={[0, 100]}
             stroke="#a0aec0"
             label={{ value: "Commission (%)", position: "insideBottomRight", offset: -10, fill: "#a0aec0" }}
           />
           <YAxis
             type="number"
-            dataKey="yield"
-            name="Yield"
+            dataKey="netYield"
+            name="Net Yield"
             unit="%"
-            domain={[5.5, 7.5]}
+            domain={['auto', 'auto']}
             stroke="#a0aec0"
-            label={{ value: "APY (%)", angle: -90, position: "insideLeft", fill: "#a0aec0" }}
+            label={{ value: "Net APY (%)", angle: -90, position: "insideLeft", fill: "#a0aec0" }}
           />
-          <ZAxis type="number" dataKey="size" range={[40, 160]} />
+          <ZAxis type="number" dataKey="stake" range={[40, 160]} name="Stake (SOL)" />
           <Tooltip
             cursor={{ strokeDasharray: "3 3" }}
             contentStyle={{
               backgroundColor: "#131a2c",
               borderColor: "#1e2a45",
-              color: "#ffffff",
+              color: "#fff",
+              borderRadius: 8,
+              boxShadow: "0 4px 16px rgba(0,0,0,0.25)",
+              padding: 12,
+              fontSize: 14,
+            }}
+            itemStyle={{
+              color: "#fff",
+              fontWeight: 500,
+              marginBottom: 4,
+            }}
+            labelStyle={{
+              color: "#fff",
+              fontWeight: 700,
+              marginBottom: 8,
             }}
             formatter={(value: number, name: string) => {
-              if (name === "Commission") return [`${value}%`, name]
-              if (name === "Yield") return [`${value}%`, "APY"]
+              if (name === "Commission") return [value, name]
+              if (name === "Net Yield") return [value, name]
+              if (name === "Stake (SOL)") return [value, name]
+              if (name === "grossYield") return [`${value}%`, "Gross Yield"]
+              if (name === "inflationReward") return [value, "Inflation Reward (lamports)"]
               return [value, name]
+            }}
+            labelFormatter={(_, payload) => {
+              if (!payload || !payload.length) return ""
+              const d = payload[0].payload
+              return `Validator: ${d.votePubkey}`
             }}
           />
           <Scatter name="Validators" data={data} fill="#8884d8" shape="circle" />

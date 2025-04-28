@@ -2,19 +2,6 @@
 
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from "recharts"
 
-// Dummy data - would be replaced with real RPC data
-const data = [
-  { name: "Validator A", value: 12500000 },
-  { name: "Validator B", value: 8750000 },
-  { name: "Validator C", value: 7250000 },
-  { name: "Validator D", value: 6500000 },
-  { name: "Validator E", value: 5750000 },
-  { name: "Validator F", value: 4250000 },
-  { name: "Validator G", value: 3750000 },
-  { name: "Validator H", value: 3250000 },
-  { name: "Validator I", value: 2750000 },
-  { name: "Validator J", value: 2250000 },
-]
 
 const COLORS = [
   "#8884d8",
@@ -29,23 +16,45 @@ const COLORS = [
   "#bc5090",
 ]
 
-export default function StakeDistribution() {
+interface StakeDistributionProps {
+  data?: {pubkey: string, stake: number}[] | []
+}
+
+export default function StakeDistribution({ data = [] }: StakeDistributionProps) {
+  if (!data || data.length === 0) {
+    return (
+      <div className="h-[300px] w-full flex items-center justify-center">
+        <p className="text-gray-400">No stake distribution data available</p>
+      </div>
+    )
+  }
+
+  // Process data to include shortened pubkeys for display
+  const processedData = data.map(item => ({
+    ...item,
+    shortPubkey: `${item.pubkey.slice(0, 4)}...${item.pubkey.slice(-4)}`,
+    fullPubkey: item.pubkey,
+    stake: item.stake
+  }));
+
   return (
     <div className="h-[300px] w-full">
       <ResponsiveContainer width="100%" height="100%">
         <PieChart>
           <Pie
-            data={data}
+            data={processedData}
             cx="50%"
             cy="50%"
             labelLine={false}
             outerRadius={80}
             fill="#8884d8"
-            dataKey="value"
-            nameKey="name"
-            label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+            dataKey="stake"
+            nameKey="shortPubkey"
+            label={({ shortPubkey, percent }) => {
+              return `${shortPubkey}: ${(percent * 100).toFixed(0)}%`;
+            }}
           >
-            {data.map((entry, index) => (
+            {processedData.map((entry, index) => (
               <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
             ))}
           </Pie>
@@ -57,8 +66,8 @@ export default function StakeDistribution() {
                   <div className="rounded-lg border border-[#1e2a45] bg-[#131a2c] p-2 shadow-sm">
                     <div className="grid grid-cols-2 gap-2">
                       <div className="flex flex-col">
-                        <span className="text-sm font-bold text-white">{data.name}</span>
-                        <span className="text-xs text-gray-300">{(data.value / 1000000).toFixed(2)}M SOL</span>
+                        <span className="text-sm font-bold text-white">{data.shortPubkey}</span>
+                        <span className="text-xs text-gray-300">{(data.stake / 1000000).toFixed(2)}M SOL</span>
                       </div>
                     </div>
                   </div>
@@ -67,7 +76,15 @@ export default function StakeDistribution() {
               return null
             }}
           />
-          <Legend layout="vertical" verticalAlign="middle" align="right" />
+          <Legend 
+            layout="vertical" 
+            verticalAlign="middle" 
+            align="right"
+            formatter={(value, entry, index) => {
+              // Ensure legend items also use shortened pubkeys
+              return <span className="text-sm">{value}</span>;
+            }}
+          />
         </PieChart>
       </ResponsiveContainer>
     </div>

@@ -1,15 +1,81 @@
 "use client"
-
+import { useState, useEffect } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import StakeDistribution from "@/components/charts/stake-distribution"
 import ValidatorPerformance from "@/components/charts/validator-performance"
-import ParticipationTrend from "@/components/charts/participation-trend"
 import CommissionYield from "@/components/charts/commission-yield"
+import ValidatorsUptimeChart from "@/components/charts/validators-uptime"
 import { useIsMobile } from "@/hooks/use-mobile"
+
+interface Metrics {
+  stakeDistribution: {
+    totalStaked: number,
+    circulatingSupply: number,
+    nonCirculatingSupply: number,
+    topValidators: {pubkey: string, stake: number}[]
+  }
+  validatorPerformance:  {
+    votePubkey: string,
+    commission: number,
+    produced: number,
+    skipped: number,
+    expected: number,
+    uptime: number
+  }[]
+  commissionYield: {
+    votePubkey: string,
+    commission: number,
+    inflationReward: number,
+    stake: number,
+    grossYield: number,
+    netYield: number
+  }[]
+  inflationRewardTrend: {
+    epoch: number,
+    totalReward: number
+  }[]
+  epochStatus: {
+    progress: number
+  }
+  tpsSlotTime: any[],
+  validatorsUptime: {
+    votePubkey: string,
+    commission: number,
+    activatedStake: number,
+    creditsEarned: number,
+    uptime: number
+  }[]
+}
 
 export default function ChartsGrid() {
   const isMobile = useIsMobile()
+
+  const [metrics, setMetrics] = useState<Metrics>({} as Metrics);
+  const [error, setError] = useState(false)
+
+  useEffect(() => {
+    async function fetchAll() {
+      try {
+        const response = await fetch('/api/chart');
+        const [epochRes, perfRes] = await Promise.all([
+          fetch('/api/epoch-status'),
+          fetch('/api/tps-slot-time')
+        ])
+        const epochData = await epochRes.json();
+        const perfData = await perfRes.json();
+        const metrics = await response.json();
+        setMetrics({
+          ...metrics,
+          epochStatus: epochData,
+          tpsSlotTime: perfData.data
+        });
+      } catch {
+        setError(true);
+      }
+    }
+    fetchAll()
+  }, [])
 
   if (isMobile) {
     return (
@@ -28,6 +94,12 @@ export default function ChartsGrid() {
             <TabsTrigger value="commission-yield" className="data-[state=active]:bg-[#2a3a5a] text-white">
               Commission vs Yield
             </TabsTrigger>
+            <TabsTrigger value="epoch-status" className="data-[state=active]:bg-[#2a3a5a] text-white">
+              Epoch Status
+            </TabsTrigger>
+            <TabsTrigger value="tps-slot-time" className="data-[state=active]:bg-[#2a3a5a] text-white">
+              TPS / Slot Time
+            </TabsTrigger>
           </TabsList>
           <TabsContent value="stake-distribution">
             <Card className="bg-[#131a2c] border-[#1e2a45] shadow-lg">
@@ -36,7 +108,9 @@ export default function ChartsGrid() {
                 <CardDescription className="text-gray-300">Top 10 validators by stake</CardDescription>
               </CardHeader>
               <CardContent>
-                <StakeDistribution />
+                <StakeDistribution 
+                  data={metrics?.stakeDistribution?.topValidators || []} 
+                />
               </CardContent>
             </Card>
           </TabsContent>
@@ -47,21 +121,11 @@ export default function ChartsGrid() {
                 <CardDescription className="text-gray-300">Blocks produced vs skipped</CardDescription>
               </CardHeader>
               <CardContent>
-                <ValidatorPerformance />
+                <ValidatorPerformance data={metrics?.validatorPerformance || []} />
               </CardContent>
             </Card>
           </TabsContent>
-          <TabsContent value="participation-trend">
-            <Card className="bg-[#131a2c] border-[#1e2a45] shadow-lg">
-              <CardHeader>
-                <CardTitle className="text-white">Participation Trend</CardTitle>
-                <CardDescription className="text-gray-300">Staker count by epoch</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <ParticipationTrend />
-              </CardContent>
-            </Card>
-          </TabsContent>
+         
           <TabsContent value="commission-yield">
             <Card className="bg-[#131a2c] border-[#1e2a45] shadow-lg">
               <CardHeader>
@@ -69,7 +133,19 @@ export default function ChartsGrid() {
                 <CardDescription className="text-gray-300">Validator commission rates and yields</CardDescription>
               </CardHeader>
               <CardContent>
-                <CommissionYield />
+                <CommissionYield data={metrics?.commissionYield || []} />
+              </CardContent>
+            </Card>
+          </TabsContent>
+         
+          <TabsContent value="tps-slot-time">
+            <Card className="bg-[#131a2c] border-[#1e2a45] shadow-lg">
+              <CardHeader>
+                <CardTitle className="text-white">TPS / Slot Time</CardTitle>
+                <CardDescription className="text-gray-300">Performance over last hour</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ValidatorsUptimeChart data={metrics?.validatorsUptime || []} />
               </CardContent>
             </Card>
           </TabsContent>
@@ -86,7 +162,9 @@ export default function ChartsGrid() {
           <CardDescription className="text-gray-300">Top 10 validators by stake</CardDescription>
         </CardHeader>
         <CardContent>
-          <StakeDistribution />
+          <StakeDistribution 
+            data={metrics?.stakeDistribution?.topValidators || []} 
+          />
         </CardContent>
       </Card>
 
@@ -96,17 +174,7 @@ export default function ChartsGrid() {
           <CardDescription className="text-gray-300">Blocks produced vs skipped</CardDescription>
         </CardHeader>
         <CardContent>
-          <ValidatorPerformance />
-        </CardContent>
-      </Card>
-
-      <Card className="bg-[#131a2c] border-[#1e2a45] shadow-lg">
-        <CardHeader>
-          <CardTitle className="text-white">Participation Trend</CardTitle>
-          <CardDescription className="text-gray-300">Staker count by epoch</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <ParticipationTrend />
+          <ValidatorPerformance data={metrics?.validatorPerformance || []} />
         </CardContent>
       </Card>
 
@@ -116,7 +184,17 @@ export default function ChartsGrid() {
           <CardDescription className="text-gray-300">Validator commission rates and yields</CardDescription>
         </CardHeader>
         <CardContent>
-          <CommissionYield />
+          <CommissionYield data={metrics?.commissionYield || []} />
+        </CardContent>
+      </Card>
+
+      <Card className="bg-[#131a2c] border-[#1e2a45] shadow-lg">
+        <CardHeader>
+          <CardTitle className="text-white">TPS / Slot Time</CardTitle>
+          <CardDescription className="text-gray-300">Performance over last hour</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <ValidatorsUptimeChart data={metrics?.validatorsUptime || []} />
         </CardContent>
       </Card>
     </div>

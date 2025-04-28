@@ -1,36 +1,59 @@
+'use client'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
 import { AlertTriangle, ArrowUpRight } from "lucide-react"
+import { useEffect, useState } from "react"
 
 export default function AlertsPanel() {
-  // Dummy data - would be replaced with real RPC data
-  const alerts = [
-    {
-      id: 1,
-      type: "Delinquent Stake",
-      validator: "Validator E",
-      value: "5.8%",
-      severity: "warning",
-      timestamp: "2023-06-15 14:32:45",
-    },
-    {
-      id: 2,
-      type: "Low Performance",
-      validator: "Validator I",
-      value: "78.5%",
-      severity: "warning",
-      timestamp: "2023-06-15 12:18:22",
-    },
-    {
-      id: 3,
-      type: "Commission Change",
-      validator: "Validator C",
-      value: "3% → 5%",
-      severity: "info",
-      timestamp: "2023-06-15 09:45:11",
-    },
-  ]
+  const [alerts, setAlerts] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(false)
+
+  useEffect(() => {
+    async function fetchAlerts() {
+      try {
+        const res = await fetch("/api/alerts")
+        const data = await res.json()
+        if (data.success) {
+          setAlerts(data.alerts)
+        } else {
+          setError(true)
+        }
+      } catch {
+        setError(true)
+      } finally {
+        setLoading(false)
+      }
+    }
+    fetchAlerts()
+  }, [])
+
+  if (loading) {
+    return (
+      <Card className="bg-[#131a2c] border-[#1e2a45] shadow-lg mb-8">
+        <CardHeader>
+          <CardTitle className="text-white">Alerts</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="text-gray-300">Loading alerts...</div>
+        </CardContent>
+      </Card>
+    )
+  }
+
+  if (error) {
+    return (
+      <Card className="bg-[#131a2c] border-[#1e2a45] shadow-lg mb-8">
+        <CardHeader>
+          <CardTitle className="text-white">Alerts</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="text-red-400">Failed to load alerts.</div>
+        </CardContent>
+      </Card>
+    )
+  }
 
   return (
     <Card className="bg-[#131a2c] border-[#1e2a45] shadow-lg mb-8">

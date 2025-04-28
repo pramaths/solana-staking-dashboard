@@ -16,6 +16,16 @@ interface StakeAccount {
     nonCirculating: number
     total: number
   }
+  top10staked: {
+    activatedStake: number
+    commission: number
+    epochCredits: number[][]
+    epochVoteAccount: boolean
+    lastVote: number
+    nodePubkey: string
+    rootSlot: number
+    votePubkey: string
+  }[]
 }
 
 interface ActiveValidators {
