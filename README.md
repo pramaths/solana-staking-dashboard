@@ -5,17 +5,20 @@ A responsive dashboard for monitoring the health of Solana's staking ecosystem. 
 ## Features
 
 - **KPI Cards**: Display key metrics including Total SOL Staked, Active Validators, Delinquent Stake %, and Current Epoch
-- **Charts**: Visualize data with Pie, Line, Area, and Scatter charts
+- **Charts**: Visualize data with Pie, Line, Area, and Scatter charts using Recharts
 - **Alerts Panel**: Monitor warnings and notifications requiring attention
 - **Responsive Design**: Optimized for both desktop and mobile viewing
 
 ## Tech Stack
 
-- **Framework**: Next.js
-- **Styling**: Tailwind CSS with shadcn/ui components
-- **Charts**: Recharts
+- **Frontend Framework**: Next.js 14 with App Router
+- **UI Components**: shadcn/ui for beautiful, accessible components
+- **Styling**: Tailwind CSS for responsive design
+- **Charts**: Recharts for interactive data visualization
 - **Backend**: Vercel Serverless Functions
-- **RPC Provider**: Helius API
+- **Blockchain**: Solana RPC via Helius API
+- **State Management**: React Hooks and Context API
+- **Type Safety**: TypeScript for robust development
 
 ## Getting Started
 
@@ -30,12 +33,14 @@ The Solana Staking Health Dashboard is a comprehensive monitoring tool that prov
 
 ## Design Choices
 
-- **Serverless Architecture**: Deployed on Vercel for scalable, cost-effective backend operations
+- **Next.js 14**: Leveraging App Router for optimal performance and SEO
+- **shadcn/ui**: Modern, accessible UI components with dark mode support
+- **Vercel Serverless**: Scalable backend with automatic deployments
+- **Helius RPC**: Reliable Solana blockchain data access
+- **Recharts**: Interactive, responsive charts with custom tooltips
 - **Real-Time Data**: All metrics are fetched live from Solana RPC endpoints via Helius API
 - **Component-Based UI**: Built with modular React components for maintainability
 - **Responsive Design**: Optimized for both desktop and mobile viewing using Tailwind CSS
-- **Modern UI Components**: Utilizes shadcn/ui for consistent, accessible design
-- **Interactive Charts**: Recharts library for dynamic data visualization
 
 ## Data Sources
 
@@ -71,7 +76,7 @@ The Solana Staking Health Dashboard is a comprehensive monitoring tool that prov
 
 ## Technical Implementation
 
-The dashboard is built using Next.js for server-side rendering and routing, Tailwind CSS for styling, and shadcn/ui for UI components. Data visualization is handled by Recharts, providing interactive and responsive charts. The application is structured with modular React components for maintainability and scalability. Data fetching is designed to be easily switched from dummy data to live Solana RPC endpoints, supporting real-time updates and polling. The UI is responsive and optimized for both desktop and mobile devices.
+The dashboard is built using Next.js 14 with App Router for optimal performance and SEO. The UI is crafted with shadcn/ui components and styled using Tailwind CSS, providing a modern and responsive interface. Data visualization is handled by Recharts, offering interactive and responsive charts with custom tooltips and animations. The backend is deployed on Vercel's serverless platform, which efficiently handles API and RPC calls to the Solana blockchain via Helius. The application is structured with modular React components and TypeScript for type safety, ensuring maintainability and scalability. All data is fetched in real-time from Solana RPC endpoints, with no caching to ensure users always see the most current network state.
 
 ## Real-Time Updates
 
