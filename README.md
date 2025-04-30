@@ -6,8 +6,18 @@ A responsive dashboard for monitoring the health of Solana's staking ecosystem. 
 [View Live Dashboard](https://solana-staking-dashboard-two.vercel.app/)
 
 ## Dashboard Preview
+
+### Main Dashboard View
 ![Preview One](/public/prevone.png)
+
+<br />
+
+### Validator Performance Analytics
 ![Preview Two](/public/prevtwo.png)
+
+<br />
+
+### Network Statistics Overview
 ![Preview Three](/public/prevthree.png)
 
 ## Features
