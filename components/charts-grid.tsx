@@ -7,6 +7,7 @@ import ValidatorPerformance from "@/components/charts/validator-performance"
 import CommissionYield from "@/components/charts/commission-yield"
 import ValidatorsUptimeChart from "@/components/charts/validators-uptime"
 import { useIsMobile } from "@/hooks/use-mobile"
+import { Skeleton } from "@/components/ui/skeleton"
 
 interface Metrics {
   stakeDistribution: {
@@ -50,13 +51,14 @@ interface Metrics {
 
 export default function ChartsGrid() {
   const isMobile = useIsMobile()
-
   const [metrics, setMetrics] = useState<Metrics>({} as Metrics);
   const [error, setError] = useState(false)
+  const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
     async function fetchAll() {
       try {
+        setIsLoading(true)
         const response = await fetch('/api/chart');
         const [epochRes, perfRes] = await Promise.all([
           fetch('/api/epoch-status'),
@@ -72,10 +74,19 @@ export default function ChartsGrid() {
         });
       } catch {
         setError(true);
+      } finally {
+        setIsLoading(false)
       }
     }
     fetchAll()
   }, [])
+
+  const ChartSkeleton = () => (
+    <div className="space-y-4">
+      <Skeleton className="h-4 w-[250px]" />
+      <Skeleton className="h-[200px] w-full" />
+    </div>
+  )
 
   if (isMobile) {
     return (
@@ -108,9 +119,13 @@ export default function ChartsGrid() {
                 <CardDescription className="text-gray-300">Top 10 validators by stake</CardDescription>
               </CardHeader>
               <CardContent>
-                <StakeDistribution 
-                  data={metrics?.stakeDistribution?.topValidators || []} 
-                />
+                {isLoading ? (
+                  <ChartSkeleton />
+                ) : (
+                  <StakeDistribution 
+                    data={metrics?.stakeDistribution?.topValidators || []} 
+                  />
+                )}
               </CardContent>
             </Card>
           </TabsContent>
@@ -121,7 +136,11 @@ export default function ChartsGrid() {
                 <CardDescription className="text-gray-300">Blocks produced vs skipped</CardDescription>
               </CardHeader>
               <CardContent>
-                <ValidatorPerformance data={metrics?.validatorPerformance || []} />
+                {isLoading ? (
+                  <ChartSkeleton />
+                ) : (
+                  <ValidatorPerformance data={metrics?.validatorPerformance || []} />
+                )}
               </CardContent>
             </Card>
           </TabsContent>
@@ -133,7 +152,11 @@ export default function ChartsGrid() {
                 <CardDescription className="text-gray-300">Validator commission rates and yields</CardDescription>
               </CardHeader>
               <CardContent>
-                <CommissionYield data={metrics?.commissionYield || []} />
+                {isLoading ? (
+                  <ChartSkeleton />
+                ) : (
+                  <CommissionYield data={metrics?.commissionYield || []} />
+                )}
               </CardContent>
             </Card>
           </TabsContent>
@@ -145,7 +168,11 @@ export default function ChartsGrid() {
                 <CardDescription className="text-gray-300">Performance over last hour</CardDescription>
               </CardHeader>
               <CardContent>
-                <ValidatorsUptimeChart data={metrics?.validatorsUptime || []} />
+                {isLoading ? (
+                  <ChartSkeleton />
+                ) : (
+                  <ValidatorsUptimeChart data={metrics?.validatorsUptime || []} />
+                )}
               </CardContent>
             </Card>
           </TabsContent>
@@ -162,9 +189,13 @@ export default function ChartsGrid() {
           <CardDescription className="text-gray-300">Top 10 validators by stake</CardDescription>
         </CardHeader>
         <CardContent>
-          <StakeDistribution 
-            data={metrics?.stakeDistribution?.topValidators || []} 
-          />
+          {isLoading ? (
+            <ChartSkeleton />
+          ) : (
+            <StakeDistribution 
+              data={metrics?.stakeDistribution?.topValidators || []} 
+            />
+          )}
         </CardContent>
       </Card>
 
@@ -174,7 +205,11 @@ export default function ChartsGrid() {
           <CardDescription className="text-gray-300">Blocks produced vs skipped</CardDescription>
         </CardHeader>
         <CardContent>
-          <ValidatorPerformance data={metrics?.validatorPerformance || []} />
+          {isLoading ? (
+            <ChartSkeleton />
+          ) : (
+            <ValidatorPerformance data={metrics?.validatorPerformance || []} />
+          )}
         </CardContent>
       </Card>
 
@@ -184,7 +219,11 @@ export default function ChartsGrid() {
           <CardDescription className="text-gray-300">Validator commission rates and yields</CardDescription>
         </CardHeader>
         <CardContent>
-          <CommissionYield data={metrics?.commissionYield || []} />
+          {isLoading ? (
+            <ChartSkeleton />
+          ) : (
+            <CommissionYield data={metrics?.commissionYield || []} />
+          )}
         </CardContent>
       </Card>
 
@@ -194,7 +233,11 @@ export default function ChartsGrid() {
           <CardDescription className="text-gray-300">Performance over last hour</CardDescription>
         </CardHeader>
         <CardContent>
-          <ValidatorsUptimeChart data={metrics?.validatorsUptime || []} />
+          {isLoading ? (
+            <ChartSkeleton />
+          ) : (
+            <ValidatorsUptimeChart data={metrics?.validatorsUptime || []} />
+          )}
         </CardContent>
       </Card>
     </div>
