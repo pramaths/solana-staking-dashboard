@@ -107,10 +107,6 @@ The dashboard is built using Next.js 14 with App Router for optimal performance 
 
 The Solana Staking Health Dashboard provides a powerful, real-time window into the Solana staking ecosystem. By leveraging Vercel's serverless architecture and Helius's RPC endpoints, it delivers up-to-the-minute insights into validator performance, stake distribution, and network health. The dashboard's responsive design and comprehensive metrics make it an essential tool for both casual users and advanced stakers monitoring the Solana network.
 
-## Replacing Dummy Data with RPC Calls
-
-This dashboard currently uses dummy data located in `lib/dummy-data.ts`. To integrate with real Solana RPC, set up Solana Web3.js, create a service to handle RPC calls, and update components to use real data instead of dummy data. Implement data refresh functionality in the header for real-time updates.
-
 ## License
 
 MIT
