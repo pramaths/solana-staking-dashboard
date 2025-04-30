@@ -2,6 +2,14 @@
 
 A responsive dashboard for monitoring the health of Solana's staking ecosystem. This dashboard provides a comprehensive view of key metrics such as stake distribution, validator performance, and network participation.
 
+## Live Demo
+[View Live Dashboard](https://solana-staking-dashboard-two.vercel.app/)
+
+## Dashboard Preview
+![Preview One](/public/prevone.png)
+![Preview Two](/public/prevtwo.png)
+![Preview Three](/public/prevthree.png)
+
 ## Features
 
 - **KPI Cards**: Display key metrics including Total SOL Staked, Active Validators, Delinquent Stake %, and Current Epoch
@@ -80,9 +88,9 @@ The dashboard is built using Next.js 14 with App Router for optimal performance 
 
 ## Real-Time Updates
 
-- **Live Data Fetching**: All metrics are fetched fresh on every page load
-- **No Caching**: Ensures users always see the most current network state
-- **Efficient Polling**: Optimized RPC calls to minimize network load
+- **Live Data Fetching**: All metrics are fetched directly from Helius RPC endpoints
+- **Real-Time Data**: No dummy data - all information is pulled live from the Solana blockchain
+- **Efficient Polling**: Optimized RPC calls to minimize network load while maintaining data freshness
 - **Error Handling**: Graceful degradation when RPC endpoints are unavailable
 
 ## Conclusion

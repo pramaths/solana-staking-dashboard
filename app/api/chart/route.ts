@@ -50,13 +50,11 @@ export async function GET() {
 
   const keys = voteAccounts.current.map((v) => new PublicKey(v.votePubkey));
 
-  // Get current epoch rewards
   const currentEpochRewards = await helius.connection.getInflationReward(
     keys,
     epochInfo.epoch - 1
   ).catch(() => Array(keys.length).fill(null));
 
-  // Get historical rewards in parallel - reduced from 10 to 5 epochs for better performance
   const epochsAgo = 5;
   const historicalRewardsPromises = [];
   
