@@ -60,17 +60,16 @@ export default function ChartsGrid() {
       try {
         setIsLoading(true)
         const response = await fetch('/api/chart');
-        const [epochRes, perfRes] = await Promise.all([
-          fetch('/api/epoch-status'),
-          fetch('/api/tps-slot-time')
-        ])
-        const epochData = await epochRes.json();
-        const perfData = await perfRes.json();
+        // const [epochRes, perfRes] = await Promise.all([
+        //   fetch('/api/epoch-status'),
+        //   fetch('/api/tps-slot-time')
+        // ])
+        // const epochData = await epochRes.json();
+        // const perfData = await perfRes.json();
         const metrics = await response.json();
         setMetrics({
           ...metrics,
-          epochStatus: epochData,
-          tpsSlotTime: perfData.data
+          // epochStatus: epochData,
         });
       } catch {
         setError(true);
