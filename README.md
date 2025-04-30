@@ -14,244 +14,80 @@ A responsive dashboard for monitoring the health of Solana's staking ecosystem. 
 - **Framework**: Next.js
 - **Styling**: Tailwind CSS with shadcn/ui components
 - **Charts**: Recharts
+- **Backend**: Vercel Serverless Functions
+- **RPC Provider**: Helius API
 
 ## Getting Started
 
 1. Clone the repository
-2. Install dependencies:
-   ```bash
-   npm install
-   # or
-   yarn install
-   ```
-3. Run the development server:
-   ```bash
-   npm run dev
-   # or
-   yarn dev
-   ```
+2. Install dependencies using npm or yarn
+3. Run the development server
 4. Open [http://localhost:3000](http://localhost:3000) in your browser
+
+## Project Overview
+
+The Solana Staking Health Dashboard is a comprehensive monitoring tool that provides real-time insights into the Solana staking ecosystem. It's designed to help users track validator performance, stake distribution, and overall network health. The dashboard fetches live data directly from Solana RPC endpoints through Helius API, ensuring users always have access to the most current information.
+
+## Design Choices
+
+- **Serverless Architecture**: Deployed on Vercel for scalable, cost-effective backend operations
+- **Real-Time Data**: All metrics are fetched live from Solana RPC endpoints via Helius API
+- **Component-Based UI**: Built with modular React components for maintainability
+- **Responsive Design**: Optimized for both desktop and mobile viewing using Tailwind CSS
+- **Modern UI Components**: Utilizes shadcn/ui for consistent, accessible design
+- **Interactive Charts**: Recharts library for dynamic data visualization
+
+## Data Sources
+
+- **Solana RPC via Helius**: Primary data source for all blockchain metrics
+- **Real-Time Updates**: No cached or stale data - fresh fetches on every page load
+- **Comprehensive Metrics**: Includes stake distribution, validator performance, commission rates, and network health indicators
+
+## Key Metrics
+
+- **Total SOL Staked**: Current amount of SOL staked across the network
+- **Active Validators**: Number of validators actively participating in consensus
+- **Delinquent Stake %**: Percentage of stake delegated to non-participating validators
+- **Current Epoch**: Network epoch number and progress
+- **Commission vs Yield**: Validator commission rates and corresponding yields
+- **Validator Performance**: Blocks produced vs skipped, uptime metrics
+- **Top 10 Validators**: Stake distribution among leading validators
+- **Network Health**: Overall network participation and performance metrics
+
+## Dashboard Features
+
+- **Real-Time KPI Cards**: Live updates of critical network metrics
+- **Interactive Charts**:
+  - Stake Distribution (Pie Chart)
+  - Validator Performance (Line/Bar Charts)
+  - Commission vs Yield (Scatter Plot)
+  - Network Participation (Area Chart)
+- **Alerts System**: Real-time notifications for:
+  - Non-participating validators
+  - High delinquency rates
+  - Network performance issues
+- **Responsive Layout**: Adapts to desktop and mobile screens
+- **Tabbed Interface**: Easy navigation between different metric views
+
+## Technical Implementation
+
+The dashboard is built using Next.js for server-side rendering and routing, Tailwind CSS for styling, and shadcn/ui for UI components. Data visualization is handled by Recharts, providing interactive and responsive charts. The application is structured with modular React components for maintainability and scalability. Data fetching is designed to be easily switched from dummy data to live Solana RPC endpoints, supporting real-time updates and polling. The UI is responsive and optimized for both desktop and mobile devices.
+
+## Real-Time Updates
+
+- **Live Data Fetching**: All metrics are fetched fresh on every page load
+- **No Caching**: Ensures users always see the most current network state
+- **Efficient Polling**: Optimized RPC calls to minimize network load
+- **Error Handling**: Graceful degradation when RPC endpoints are unavailable
+
+## Conclusion
+
+The Solana Staking Health Dashboard provides a powerful, real-time window into the Solana staking ecosystem. By leveraging Vercel's serverless architecture and Helius's RPC endpoints, it delivers up-to-the-minute insights into validator performance, stake distribution, and network health. The dashboard's responsive design and comprehensive metrics make it an essential tool for both casual users and advanced stakers monitoring the Solana network.
 
 ## Replacing Dummy Data with RPC Calls
 
-This dashboard currently uses dummy data located in `lib/dummy-data.ts`. To integrate with real Solana RPC:
-
-### 1. Set up Solana Web3.js
-
-Install the Solana web3.js library:
-
-```bash
-npm install @solana/web3.js
-# or
-yarn add @solana/web3.js
-```
-
-### 2. Create RPC Service
-
-Create a service to handle RPC calls in `lib/solana-service.ts`:
-
-```typescript
-import { Connection, PublicKey, clusterApiUrl } from '@solana/web3.js';
-
-// Initialize connection to Solana cluster
-const connection = new Connection(clusterApiUrl('mainnet-beta'));
-
-export async function getTotalStake() {
-  // Replace with actual RPC call to get total stake
-  const supply = await connection.getSupply();
-  return {
-    value: supply.value.circulating,
-    total: supply.value.total,
-    percentageStaked: (supply.value.circulating / supply.value.total) * 100,
-  };
-}
-
-export async function getActiveValidators() {
-  // Replace with actual RPC call to get validator count
-  const validators = await connection.getVoteAccounts();
-  return {
-    value: validators.current.length + validators.delinquent.length,
-    change: 0, // Calculate change from previous epoch
-  };
-}
-
-export async function getDelinquentStake() {
-  // Replace with actual RPC call to get delinquent stake percentage
-  const validators = await connection.getVoteAccounts();
-  const totalStake = validators.current.reduce((acc, v) => acc + v.activatedStake, 0) +
-                     validators.delinquent.reduce((acc, v) => acc + v.activatedStake, 0);
-  const delinquentStake = validators.delinquent.reduce((acc, v) => acc + v.activatedStake, 0);
-  
-  const delinquentPercentage = (delinquentStake / totalStake) * 100;
-  
-  return {
-    value: delinquentPercentage.toFixed(1),
-    isWarning: delinquentPercentage > 5,
-  };
-}
-
-export async function getCurrentEpoch() {
-  // Replace with actual RPC call to get current epoch
-  const epochInfo = await connection.getEpochInfo();
-  
-  // Calculate time remaining (this is an approximation)
-  const slotsRemaining = epochInfo.slotsInEpoch - epochInfo.slotIndex;
-  const secondsRemaining = slotsRemaining * 0.4; // Assuming 400ms per slot
-  
-  const days = Math.floor(secondsRemaining / 86400);
-  const hours = Math.floor((secondsRemaining % 86400) / 3600);
-  
-  return {
-    value: epochInfo.epoch,
-    timeRemaining: `${days}d ${hours}h`,
-  };
-}
-
-export async function getStakeDistribution() {
-  // Replace with actual RPC call to get stake distribution
-  const validators = await connection.getVoteAccounts();
-  
-  // Sort validators by stake and take top 10
-  const sortedValidators = [...validators.current, ...validators.delinquent]
-    .sort((a, b) => b.activatedStake - a.activatedStake)
-    .slice(0, 10)
-    .map(v => ({
-      name: v.nodePubkey.slice(0, 8) + '...',
-      value: v.activatedStake,
-    }));
-  
-  return sortedValidators;
-}
-
-// Implement other data fetching functions for charts and alerts
-```
-
-### 3. Update Components to Use Real Data
-
-Replace the dummy data imports with the RPC service in each component. For example:
-
-```typescript
-// In components/kpi-cards.tsx
-import { useEffect, useState } from 'react';
-import { getTotalStake, getActiveValidators, getDelinquentStake, getCurrentEpoch } from '@/lib/solana-service';
-
-export default function KpiCards() {
-  const [kpiData, setKpiData] = useState({
-    totalStaked: { value: 0, total: 0, percentageStaked: 0 },
-    activeValidators: { value: 0, change: 0 },
-    delinquentStake: { value: 0, isWarning: false },
-    currentEpoch: { value: 0, timeRemaining: '0d 0h' },
-  });
-  
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    async function fetchData() {
-      try {
-        const [totalStaked, activeValidators, delinquentStake, currentEpoch] = await Promise.all([
-          getTotalStake(),
-          getActiveValidators(),
-          getDelinquentStake(),
-          getCurrentEpoch(),
-        ]);
-        
-        setKpiData({
-          totalStaked,
-          activeValidators,
-          delinquentStake,
-          currentEpoch,
-        });
-      } catch (error) {
-        console.error('Error fetching KPI data:', error);
-      } finally {
-        setLoading(false);
-      }
-    }
-    
-    fetchData();
-    
-    // Set up polling for regular updates
-    const interval = setInterval(fetchData, 60000); // Update every minute
-    return () => clearInterval(interval);
-  }, []);
-
-  if (loading) {
-    return <div>Loading KPI data...</div>;
-  }
-
-  // Rest of the component remains the same
-  // ...
-}
-```
-
-### 4. Add Data Refresh Functionality
-
-Implement the refresh button functionality in the Header component:
-
-```typescript
-// In components/header.tsx
-import { RefreshCw } from 'lucide-react'
-import { Button } from "@/components/ui/button"
-import { useState } from "react"
-
-export default function Header({ onRefresh }) {
-  const [lastRefreshed, setLastRefreshed] = useState(new Date().toLocaleTimeString());
-  const [isRefreshing, setIsRefreshing] = useState(false);
-
-  const handleRefresh = async () => {
-    setIsRefreshing(true);
-    await onRefresh();
-    setLastRefreshed(new Date().toLocaleTimeString());
-    setIsRefreshing(false);
-  };
-
-  return (
-    <div className="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between">
-      <h1 className="text-3xl font-bold tracking-tight text-white mb-2 sm:mb-0">
-        Solana Staking Health
-      </h1>
-      <div className="flex items-center gap-2 text-sm text-gray-400">
-        <span>Last refreshed: {lastRefreshed}</span>
-        <Button 
-          variant="ghost" 
-          size="icon" 
-          className="h-8 w-8" 
-          onClick={handleRefresh}
-          disabled={isRefreshing}
-        >
-          <RefreshCw className={`h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`} />
-          <span className="sr-only">Refresh data</span>
-        </Button>
-      </div>
-    </div>
-  );
-}
-```
-
-## Future Enhancements
-
-- Add authentication for personalized views
-- Implement historical data tracking
-- Add validator search functionality
-- Create alert notification system
-- Add staking action capabilities
+This dashboard currently uses dummy data located in `lib/dummy-data.ts`. To integrate with real Solana RPC, set up Solana Web3.js, create a service to handle RPC calls, and update components to use real data instead of dummy data. Implement data refresh functionality in the header for real-time updates.
 
 ## License
 
 MIT
-
-## Project Overview
-
-## Design Choices
-
-## Data Sources
-
-## Key Metrics
-
-## Dashboard Features
-
-## Technical Implementation
-
-## Real-Time Updates
-
-## Conclusion
